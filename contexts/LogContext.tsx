@@ -11,7 +11,14 @@ export const LogContextProvider = ({children}: {children: React.ReactNode}) => {
       date: Date;
       id: string;
     }[]
-  >([]);
+  >(
+    Array.from({length: 10}).map((_, idx) => ({
+      id: uuidv4(),
+      title: `Log-${idx}`,
+      body: `Log-${idx}`,
+      date: new Date().toISOString(),
+    })),
+  );
   const onCreate = ({
     title,
     body,
@@ -29,8 +36,18 @@ export const LogContextProvider = ({children}: {children: React.ReactNode}) => {
     };
     setLogs([log, ...logs]);
   };
+
+  const onModify = modified => {
+    const nextLog = logs.map(log => (log.id === modified.id ? modified : log));
+    setLogs(nextLog);
+  };
+
+  const onRemove = id => {
+    const newLog = logs.filter(log => log.id !== id);
+    setLogs(newLog);
+  };
   return (
-    <LogContext.Provider value={{logs, onCreate}}>
+    <LogContext.Provider value={{logs, onCreate, onModify, onRemove}}>
       {children}
     </LogContext.Provider>
   );
